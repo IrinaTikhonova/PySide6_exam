@@ -62,7 +62,7 @@ class DisksInfo(QtCore.QThread):
             disks_info.append(round(psutil.disk_usage(disk.device).total / 1024 ** 3, 2))
             disks_info.append(round(psutil.disk_usage(disk.device).used / 1024 ** 3, 2))
 
-        self.disksInfoReceived.emit(disks_info)
+            self.disksInfoReceived.emit(disks_info)
 
 
 
@@ -89,7 +89,7 @@ class ProcInfoThread(QtCore.QThread):
                         proc_info.append([
                             proc.ppid(), proc.name(),
                             proc.cpu_percent(),
-                            proc.memory_percent(),
+                            round(proc.memory_percent(), 3),
                             proc.status()
                         ])
 
@@ -152,8 +152,8 @@ class TaskSchedulerInfo(QtCore.QThread):
                 for task in folder.GetTasks(0):
                     task_path = task.Path
                     task_state = TaskSchedulerInfo.TASK_STATE[task.State]
-                    task_run_time = str(task.NextRunTime)
-                    taskSchedulerInfo.append([task_path, task_state, task_run_time])
+                    task_schedule = str(task.NextRunTime)
+                    taskSchedulerInfo.append([task_path, task_state, task_schedule])
             self.taskSchedulerInfoReceived.emit(taskSchedulerInfo)
             sleep(self.timeout)
 

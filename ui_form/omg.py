@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'one_window_mode.ui'
+## Form generated from reading UI file 'one_window_mode_2.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.4.1
 ##
@@ -17,10 +17,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QHeaderView,
-    QLabel, QListWidget, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPlainTextEdit, QSizePolicy,
-    QSpinBox, QStatusBar, QTabWidget, QTableView,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
+    QLabel, QMainWindow, QMenu, QMenuBar,
+    QPlainTextEdit, QSizePolicy, QSpinBox, QStatusBar,
+    QTabWidget, QTableView, QTreeView, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -68,7 +68,7 @@ class Ui_MainWindow(object):
 
         self.spinBox = QSpinBox(self.centralwidget)
         self.spinBox.setObjectName(u"spinBox")
-        self.spinBox.setValue(1)
+        self.spinBox.setMinimum(1)
 
         self.horizontalLayout.addWidget(self.spinBox)
 
@@ -82,10 +82,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.CPU_info)
 
-        self.disks_info = QListWidget(self.centralwidget)
-        self.disks_info.setObjectName(u"disks_info")
+        self.treeView = QTreeView(self.centralwidget)
+        self.treeView.setObjectName(u"treeView")
 
-        self.verticalLayout.addWidget(self.disks_info)
+        self.verticalLayout.addWidget(self.treeView)
 
 
         self.verticalLayout_4.addLayout(self.verticalLayout)
@@ -109,7 +109,7 @@ class Ui_MainWindow(object):
 
         self.spinBox_2 = QSpinBox(self.centralwidget)
         self.spinBox_2.setObjectName(u"spinBox_2")
-        self.spinBox_2.setValue(1)
+        self.spinBox_2.setMinimum(1)
 
         self.horizontalLayout_2.addWidget(self.spinBox_2)
 
@@ -143,19 +143,12 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.services, "")
         self.tasks = QWidget()
         self.tasks.setObjectName(u"tasks")
-        self.verticalLayout_3 = QVBoxLayout(self.tasks)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.tableWidget = QTableWidget(self.tasks)
-        self.tableWidget.setObjectName(u"tableWidget")
-        __qtablewidgetitem = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        __qtablewidgetitem2 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        self.horizontalLayout_6 = QHBoxLayout(self.tasks)
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.tableView = QTableView(self.tasks)
+        self.tableView.setObjectName(u"tableView")
 
-
-        self.verticalLayout_3.addWidget(self.tableWidget)
+        self.horizontalLayout_6.addWidget(self.tableView)
 
         self.tabWidget.addTab(self.tasks, "")
 
