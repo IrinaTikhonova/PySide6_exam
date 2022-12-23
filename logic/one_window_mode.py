@@ -12,11 +12,11 @@
 Показ работающих служб
 Показ задач, которые запускаются с помощью планировщика задач
 """
-from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui, QtCore
 
 from ui_form.all_in_one import Ui_MainWindow
 
-from logic.threads import SystemInfo, ProcInfoThread, ServInfoThread, TaskSchedulerInfo
+from logic.threads import SystemInfo, ProcInfoThread, ServInfoThread, TaskSchedulerInfo, DisksInfo
 
 
 class Window(QtWidgets.QMainWindow):
@@ -40,7 +40,7 @@ class Window(QtWidgets.QMainWindow):
         """
         self.Ui.processes_view.setModel(self.tableModel)
         self.Ui.services_view.setModel(self.tableModel2)
-        # self.Ui.p.resizeColumnsToContents()
+
 
     def initThreads(self):
         """
@@ -56,6 +56,8 @@ class Window(QtWidgets.QMainWindow):
         self.servInfo.start()
         self.taskPlan = TaskSchedulerInfo()
         self.taskPlan.start()
+        self.disksInfo = DisksInfo()
+        self.disksInfo.start()
 
     def initSignals(self):
         """
@@ -71,7 +73,8 @@ class Window(QtWidgets.QMainWindow):
         self.Ui.action_2.connect(self.onExitPress)
         self.procInfo.procInfoReceived.connect(self.procInfoReceivedHandle)
         self.servInfo.servInfoReceived.connect(self.servInfoReceivedHandle)
-        self.taskPlan.taskSchedulerInfoReceived.connect(self.taskPlanReceivedHandle)
+        self.disksInfo.disksInfoReceived.connect(self.disksInfoReceivedHandle)
+        # self.taskPlan.taskSchedulerInfoReceived.connect(self.taskPlanReceivedHandle)
 
     def setTimeoutForSysInfo(self, value):
         """
@@ -112,29 +115,51 @@ class Window(QtWidgets.QMainWindow):
 
 
     def servInfoReceivedHandle(self, serv_info):
-        self.tableModel2.appendRow([QtGui.QStandardItem(str(v)) for v in serv_info])
+        self.tableModel2.setRowCount(len(serv_info))
+        for i, service in enumerate(serv_info):
+            self.tableModel2.appendRow([QtGui.QStandardItem(str(v)) for v in service])
+
         self.tableModel2.setHorizontalHeaderLabels(["Имя", "Id", "Описание", "Тип запуска", "Путь"])
+
+    def disksInfoReceivedHandle(self, disks_list):
+        self.Ui.disks_info.setColumnCount(2)
+        self.Ui.disks_info.setHorizontalHeaderLabels(['Диск', 'Информация о памяти'])
+        itemDisk = QtGui.QStandardItem(str(disks_list[0]))
+        self.Ui.disks_info.appendRow(itemDisk)
+        self.Ui.disks_info.setItem(0, 1, QtGui.QStandardItem('Наименование'))
+
+        itemTotal = QtGui.QStandardItem('Общий объем памяти')
+        itemDisk.appendRow(itemTotal)
+        itemDisk.setChild(0, 1, QtGui.QStandardItem(str(disks_list[1])))
+
+        itemUsed = QtGui.QStandardItem('Занятый объем памяти')
+        itemDisk.appendRow(itemUsed)
+        itemDisk.setChild(0, 1, QtGui.QStandardItem(str(disks_list[2])))
+
 
     def closeEvent(self, event):
         self.systemInfo.terminate()
         self.procInfo.terminate()
         self.servInfo.terminate()
+        self.disksInfo.terminate()
+
 
     def onExitPress(self):
 
         self.systemInfo.deleteLater()
         self.procInfo.deleteLater()
         self.servInfo.deleteLater()
+        self.disksInfo.deleteLater()
         self.close()
 
-    # def taskPlanReceivedHandle(self, list_tasks):
-    #     self.Ui.tableWidget.setRowCount(len(list_tasks))
-    #     for i, task in enumerate(list_tasks):
-    #         task_name, task_path, task_state, task_next_run_time = task
-    #         self.Ui.tableWidget.setItem(i, 0, QTableWidgetItem(task_name))
-    #         self.Ui.tableWidget.setItem(i, 2, QTableWidgetItem(task_state))
-    #         self.Ui.tableWidget.setItem(i, 1, QTableWidgetItem(task_next_run_time))
-    #         self.Ui.tableWidget.setItem(i, 3, QTableWidgetItem(task_path))
+    def taskPlanReceivedHandle(self, list_tasks):
+        self.Ui.tableWidget.setRowCount(len(list_tasks))
+        for i, task in enumerate(list_tasks):
+            task_path, task_state, task_schedule = task
+            self.Ui.tableWidget.setItem(i, 0, QtGui.QTableWidgetItem(task_path))
+            self.Ui.tableWidget.setItem(i, 1, QtGui.QTableWidgetItem(task_state))
+            self.Ui.tableWidget.setItem(i, 2, QtGui.QTableWidgetItem(task_schedule))
+
 
 
 

@@ -31,6 +31,7 @@ class SystemInfo(QtCore.QThread):
 
         self.status = True
         sys_info = []
+
         while self.status:
 
             sys_info.append(f"Название процессора: {cpuinfo.get_cpu_info()['brand_raw']}")
@@ -38,22 +39,31 @@ class SystemInfo(QtCore.QThread):
             sys_info.append(f"Текущая загрузка: {psutil.cpu_percent()}")
             sys_info.append(f"Оперативная память: {psutil.virtual_memory().total//1024**2}")
             sys_info.append(f"Текущая загрузка оперативной памяти: {psutil.virtual_memory().used//1024**2}")
-            sys_info.append(f"Количество жестких дисков: {psutil.disk_partitions(all=False)}")
-            sys_info.append(psutil.disk_usage("/"))
-
-
-            # sys_info = [f"Название процессора: {cpu_name}\n",
-            #             f"Количество ядер: {cpu_num}\n"
-            #             f"Текущая загрузка: {cpu_load}\n",
-            #             f"Оперативная память: {ram}\n",
-            #             f"Текущая загрузка оперативной памяти: {ram_occupied}\n",
-            #             f"Количество жестких дисков: {hdd}\n",
-            #             f"Информация по жестким дискам: {hdd_use}"]
 
 
             self.systemInfoReceived.emit(sys_info)
 
             time.sleep(self.timeout)
+
+class DisksInfo(QtCore.QThread):
+    disksInfoReceived = QtCore.Signal(list)
+
+    def __init__(self, timeout=1, parent=None):
+        super().__init__(parent)
+        self.timeout = timeout
+        self.status = True
+
+    def run(self) -> None:
+
+        self.status = True
+        disks_info = []
+        for disk in psutil.disk_partitions(all=False):
+            disks_info.append(disk.device)
+            disks_info.append(round(psutil.disk_usage(disk.device).total / 1024 ** 3, 2))
+            disks_info.append(round(psutil.disk_usage(disk.device).used / 1024 ** 3, 2))
+
+        self.disksInfoReceived.emit(disks_info)
+
 
 
 class ProcInfoThread(QtCore.QThread):
@@ -83,8 +93,8 @@ class ProcInfoThread(QtCore.QThread):
                             proc.status()
                         ])
 
-                self.procInfoReceived.emit(proc_info)
-                time.sleep(self.timeout)
+            self.procInfoReceived.emit(proc_info)
+            time.sleep(self.timeout)
 
 class ServInfoThread(QtCore.QThread):
 
@@ -140,11 +150,10 @@ class TaskSchedulerInfo(QtCore.QThread):
                 folder = folders.pop(0)
                 folders += list(folder.GetFolders(0))
                 for task in folder.GetTasks(0):
-                    task_name = search(r".*\\{1}(.+$)", task.Path).group(1)
                     task_path = task.Path
                     task_state = TaskSchedulerInfo.TASK_STATE[task.State]
                     task_run_time = str(task.NextRunTime)
-                    taskSchedulerInfo.append([task_name, task_path, task_state, task_run_time])
+                    taskSchedulerInfo.append([task_path, task_state, task_run_time])
             self.taskSchedulerInfoReceived.emit(taskSchedulerInfo)
             sleep(self.timeout)
 
